@@ -4,6 +4,8 @@ static FacebookShare *_instance = 0;
 
 #if defined(Q_OS_IOS)
 #include "ios/facebookshareios.h"
+#elif defined(Q_OS_ANDROID)
+#include "android/facebookshareandroid.h"
 #endif
 
 FacebookShare::FacebookShare(QQuickItem *parent) : QQuickItem(parent)
@@ -32,5 +34,7 @@ void FacebookShare::imageDialog(QString filePath)
 {
 #if defined(Q_OS_IOS)
 	FacebookShareiOS::imageDialog(filePath);
+#elif defined(Q_OS_ANDROID)
+	FacebookShareAndroid::imageDialog(filePath);
 #endif
 }

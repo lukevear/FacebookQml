@@ -23,10 +23,12 @@ ios {
 
 android {
     HEADERS += \
-        $$PWD/src/login/android/facebookloginandroid.h
+        $$PWD/src/login/android/facebookloginandroid.h \
+        $$PWD/src/share/android/facebookshareandroid.h
 
     SOURCES += \
-        $$PWD/src/login/android/facebookloginandroid.cpp
+        $$PWD/src/login/android/facebookloginandroid.cpp \
+        $$PWD/src/share/android/facebookshareandroid.cpp
 
     OTHER_FILES += \
         $$PWD/src/android/com/lukevear/facebookqml/login/FacebookLoginCallbackManager.java
