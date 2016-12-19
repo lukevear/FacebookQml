@@ -1,5 +1,6 @@
 #include "facebookqml.h"
 #include "login/facebooklogin.h"
+#include "share/facebookshare.h"
 
 #if defined(Q_OS_ANDROID)
 #include <QtAndroid>
@@ -42,6 +43,7 @@ FacebookQml::FacebookQml(QQuickItem *parent) : QQuickItem(parent)
 void FacebookQml::registerQmlContext()
 {
     qmlRegisterSingletonType<FacebookLogin>("Facebook.Login", 1, 0, "FacebookLogin", FacebookLogin::instance);
+    qmlRegisterSingletonType<FacebookShare>("Facebook.Share", 1, 0, "FacebookShare", FacebookShare::instance);
 }
 
 FacebookQml *FacebookQml::instance()

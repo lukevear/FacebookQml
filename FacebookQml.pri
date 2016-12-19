@@ -3,18 +3,22 @@ DEPENDPATH += $$PWD/src
 
 HEADERS += \
     $$PWD/src/facebookqml.h \
-    $$PWD/src/login/facebooklogin.h
+    $$PWD/src/login/facebooklogin.h \
+    $$PWD/src/share/facebookshare.h
 
 SOURCES += \
     $$PWD/src/facebookqml.cpp \
-    $$PWD/src/login/facebooklogin.cpp
+    $$PWD/src/login/facebooklogin.cpp \
+    $$PWD/src/share/facebookshare.cpp
 
 ios {
     HEADERS += \
-        $$PWD/src/login/ios/facebookloginios.h
+        $$PWD/src/login/ios/facebookloginios.h \
+        $$PWD/src/share/ios/facebookshareios.h
 
     SOURCES += \
-        $$PWD/src/login/ios/facebookloginios.mm
+        $$PWD/src/login/ios/facebookloginios.mm \
+        $$PWD/src/share/ios/facebookshareios.mm
 }
 
 android {
