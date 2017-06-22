@@ -1,49 +1,15 @@
 #include "facebookqml.h"
-#include "login/facebooklogin.h"
-#include "share/facebookshare.h"
-
-#if defined(Q_OS_ANDROID)
-#include <QtAndroid>
-#endif
 
 static FacebookQml *_instance = 0;
 
 FacebookQml::FacebookQml(QQuickItem *parent) : QQuickItem(parent)
 {
-#if defined(Q_OS_ANDROID)
-    // Register our activity handler
-    JNINativeMethod methods[] {
-        {"FacebookQmlOnActivityResult", "(IILandroid/content/Intent;)Z", reinterpret_cast<void *>(JNIOnActivityResult)}
-    };
-
-    QAndroidJniEnvironment env;
-    jclass objectClass = env->GetObjectClass(QtAndroid::androidActivity().object<jobject>());
-    env->RegisterNatives(objectClass, methods, sizeof(methods) / sizeof(methods[0]));
-    env->DeleteLocalRef(objectClass);
-
-    if (QAndroidJniObject::isClassAvailable("com/facebook/FacebookSdk")) {
-        // Setup the Facebook SDK
-        QAndroidJniObject::callStaticMethod<void>(
-            "com/facebook/FacebookSdk",
-            "sdkInitialize",
-            "(Landroid/content/Context;)V",
-            QtAndroid::androidActivity().object<jobject>()
-        );
-
-        // Register the Facebook callback manager
-        _FBCallbackManager = QAndroidJniObject::callStaticObjectMethod(
-            "com/facebook/CallbackManager$Factory",
-            "create",
-            "()Lcom/facebook/CallbackManager;"
-        );
-    }
-#endif
+    _platformImpl = QSharedPointer<FacebookQmlPlatformImpl>(new FacebookQmlPlatformImpl);
 }
 
 void FacebookQml::registerQmlContext()
 {
-    qmlRegisterSingletonType<FacebookLogin>("Facebook.Login", 1, 0, "FacebookLogin", FacebookLogin::instance);
-    qmlRegisterSingletonType<FacebookShare>("Facebook.Share", 1, 0, "FacebookShare", FacebookShare::instance);
+    qmlRegisterSingletonType<FacebookQml>("FacebookQml", 1, 0, "Facebook", FacebookQml::instance);
 }
 
 FacebookQml *FacebookQml::instance()
@@ -63,23 +29,37 @@ QObject *FacebookQml::instance(QQmlEngine *engine, QJSEngine *scriptEngine)
     return FacebookQml::instance();
 }
 
-#if defined(Q_OS_ANDROID)
-QAndroidJniObject FacebookQml::getFBCallbackManager()
+void FacebookQml::logEvent(QString event)
 {
-	return _FBCallbackManager;
+    _platformImpl->logEvent(event);
 }
 
-bool FacebookQml::JNIOnActivityResult(JNIEnv *env, jobject thiz, int requestCode, int resultCode, jobject data)
+void FacebookQml::logEvent(QString event, double valueToSum)
 {
-    Q_UNUSED(env);
-    Q_UNUSED(thiz);
-
-    return FacebookQml::instance()->getFBCallbackManager().callMethod<jboolean>(
-        "onActivityResult",
-        "(IILandroid/content/Intent;)Z",
-        requestCode,
-        resultCode,
-        data
-    );
+    _platformImpl->logEvent(event, valueToSum);
 }
-#endif
+
+void FacebookQml::logEvent(QString event, QMap<QString, QVariant> parameters)
+{
+    _platformImpl->logEvent(event, parameters);
+}
+
+void FacebookQml::logEvent(QString event, double valueToSum, QMap<QString, QVariant> parameters)
+{
+    _platformImpl->logEvent(event, valueToSum, parameters);
+}
+
+void FacebookQml::login(QStringList permissions)
+{
+    _platformImpl->login(permissions);
+}
+
+void FacebookQml::logout()
+{
+    _platformImpl->logout();
+}
+
+QString FacebookQml::accessToken()
+{
+    return _platformImpl->accessToken();
+}

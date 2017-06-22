@@ -1,12 +1,9 @@
-#ifndef FACEBOOKQML_H
-#define FACEBOOKQML_H
+#ifndef FACEBOOK_H
+#define FACEBOOK_H
 
 #include <QQuickItem>
 
-#if defined(Q_OS_ANDROID)
-#include <QAndroidJniObject>
-#include <QAndroidJniEnvironment>
-#endif
+#include "facebookqmlplatformimpl.h"
 
 class FacebookQml : public QQuickItem
 {
@@ -19,20 +16,29 @@ public:
     static FacebookQml *instance();
     static QObject *instance(QQmlEngine *engine, QJSEngine *scriptEngine);
 
-#if defined(Q_OS_ANDROID)
-    QAndroidJniObject getFBCallbackManager();
-#endif
+    // Use to access the platform specific implementation
+    QSharedPointer<FacebookQmlPlatformImpl> _platformImpl;
+
+    // App Events Support
+    Q_INVOKABLE void logEvent(QString event);
+    Q_INVOKABLE void logEvent(QString event, double valueToSum);
+    Q_INVOKABLE void logEvent(QString event, QMap<QString, QVariant> parameters);
+    Q_INVOKABLE void logEvent(QString event, double valueToSum, QMap<QString, QVariant> parameters);
+
+    // Facebook Login Support
+    Q_INVOKABLE void login(QStringList permissions);
+    Q_INVOKABLE void logout();
+    Q_INVOKABLE QString accessToken();
 
 private:
+    // Internal
     explicit FacebookQml(QQuickItem *parent = 0);
 
-#if defined(Q_OS_ANDROID)
-    // Used to handle facebook callbacks
-    QAndroidJniObject _FBCallbackManager;
-
-    // Used to handle activity results
-    static bool JNIOnActivityResult(JNIEnv *env, jobject thiz, int requestCode, int resultCode, jobject data);
-#endif
+signals:
+    // Facebook Login Support
+    void loginSuccessful();
+    void loginCancelled();
+    void loginFailed(QString error);
 };
 
-#endif // FACEBOOKQML_H
+#endif // FACEBOOK_H
