@@ -60,3 +60,8 @@ android {
         android:QMAKE_EXTRA_TARGETS += first copydata
     }
 }
+
+!ios|!android {
+    SOURCES += \
+        $$PWD/src/generic/facebookqmlplatformimpl.cpp
+}
