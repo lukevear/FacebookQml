@@ -61,7 +61,7 @@ android {
     }
 }
 
-!ios|!android {
+!ios:!android {
     SOURCES += \
         $$PWD/src/generic/facebookqmlplatformimpl.cpp
 }
