@@ -53,11 +53,17 @@ android {
 
     # This dirty hack ensures that our .java files end up in the source android build directory
     !isEmpty(ANDROID_PACKAGE_SOURCE_DIR) {
-        copydata.commands += $(COPY_DIR) $$shell_path($$PWD/src/android/bundle/*) $$shell_path($$ANDROID_PACKAGE_SOURCE_DIR/src)
-        first.depends = $(first) copydata
-        export(first.depends)
-        export(copydata.commands)
-        android:QMAKE_EXTRA_TARGETS += first copydata
+        copyfacebookqmljava.commands += $(COPY_DIR) $$shell_path($$PWD/src/android/bundle/*) $$shell_path($$ANDROID_PACKAGE_SOURCE_DIR/src)
+        export(copyfacebookqmljava.commands)
+
+        isEmpty(first.depends) {
+            first.depends = $(first) copyfacebookqmljava
+            export(first.depends)
+            android:QMAKE_EXTRA_TARGETS += first copyfacebookqmljava
+        } else {
+            first.depends += copyfacebookqmljava
+            android:QMAKE_EXTRA_TARGETS += copyfacebookqmljava
+        }
     }
 }
 
