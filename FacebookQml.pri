@@ -2,8 +2,7 @@ INCLUDEPATH += $$PWD/src
 DEPENDPATH += $$PWD/src
 
 HEADERS += \
-    $$PWD/src/facebookqml.h \
-    $$PWD/src/facebookqmlplatformimpl.h
+    $$PWD/src/facebookqml.h
 
 SOURCES += \
     $$PWD/src/facebookqml.cpp
@@ -36,38 +35,26 @@ ios {
     }
 
     OBJECTIVE_HEADERS += \
-        $$PWD/src/ios/facebookqmliosutils.h
+        $$PWD/src/ios/facebookqmlutils.h
 
     OBJECTIVE_SOURCES += \
-        $$PWD/src/ios/facebookqmlplatformimpl.mm
+        $$PWD/src/ios/facebookqmlios.mm
 }
 
 android {
     QT += androidextras
 
     HEADERS += \
-        $$PWD/src/android/facebookqmlandroidutils.h
+        $$PWD/src/android/facebookqmlutils.h
 
     SOURCES += \
-        $$PWD/src/android/facebookqmlplatformimpl.cpp
+        $$PWD/src/android/facebookqmlandroid.cpp
 
-    # This dirty hack ensures that our .java files end up in the source android build directory
-    !isEmpty(ANDROID_PACKAGE_SOURCE_DIR) {
-        copyfacebookqmljava.commands += $(COPY_DIR) $$shell_path($$PWD/src/android/bundle/*) $$shell_path($$ANDROID_PACKAGE_SOURCE_DIR/src)
-        export(copyfacebookqmljava.commands)
-
-        isEmpty(first.depends) {
-            first.depends = $(first) copyfacebookqmljava
-            export(first.depends)
-            android:QMAKE_EXTRA_TARGETS += first copyfacebookqmljava
-        } else {
-            first.depends += copyfacebookqmljava
-            android:QMAKE_EXTRA_TARGETS += copyfacebookqmljava
-        }
-    }
+    include($$PWD/lib/qmakeAndroidSourcesHelper/functions.pri)
+    QMAKE_EXTRA_TARGETS += $$copyAndroidSources("facebookqml", "src/com/lukevear/facebookqml", $$shell_path($$PWD/src/android/java/FacebookQml.java))
 }
 
 !ios:!android {
     SOURCES += \
-        $$PWD/src/generic/facebookqmlplatformimpl.cpp
+        $$PWD/src/generic/facebookqmlgeneric.cpp
 }
