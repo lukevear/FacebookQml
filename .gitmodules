@@ -1,0 +1,3 @@
+[submodule "lib/qmakeAndroidSourcesHelper"]
+	path = lib/qmakeAndroidSourcesHelper
+	url = git@github.com:lukevear/qmakeAndroidSourcesHelper.git

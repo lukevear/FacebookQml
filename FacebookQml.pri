@@ -2,34 +2,59 @@ INCLUDEPATH += $$PWD/src
 DEPENDPATH += $$PWD/src
 
 HEADERS += \
-    $$PWD/src/facebookqml.h \
-    $$PWD/src/login/facebooklogin.h \
-    $$PWD/src/share/facebookshare.h
+    $$PWD/src/facebookqml.h
 
 SOURCES += \
-    $$PWD/src/facebookqml.cpp \
-    $$PWD/src/login/facebooklogin.cpp \
-    $$PWD/src/share/facebookshare.cpp
+    $$PWD/src/facebookqml.cpp
 
 ios {
-    HEADERS += \
-        $$PWD/src/login/ios/facebookloginios.h \
-        $$PWD/src/share/ios/facebookshareios.h
+    # Ensure that the Facebook SDK has been included
+    !exists($$FACEBOOKSDKPATH) {
+        error("[FacebookQml] Please set a valid path to the Facebook SDK.")
+    }
 
-    SOURCES += \
-        $$PWD/src/login/ios/facebookloginios.mm \
-        $$PWD/src/share/ios/facebookshareios.mm
+    # The individual frameworks from the Facebook SDK
+    FBQMLFRAMEWORKS = \
+        Bolts.framework \
+        FBSDKCoreKit.framework \
+        FBSDKLoginKit.framework
+
+    # Ensure that every framework file exists
+    for(framework, FBQMLFRAMEWORKS) {
+        !exists($$FACEBOOKSDKPATH/$$framework) {
+            error("[FacebookQml] $$framework was not found in the Facebook SDK directory.")
+        }
+    }
+
+    # Include the Facebook SDK
+    QMAKE_CXXFLAGS += -std=c++11 -stdlib=libc++ -F$$FACEBOOKSDKPATH
+    QMAKE_LFLAGS += -stdlib=libc++ -F$$FACEBOOKSDKPATH
+
+    for(framework, FBQMLFRAMEWORKS) {
+        LIBS += -lz -framework $$replace(framework, ".framework", "")
+    }
+
+    OBJECTIVE_HEADERS += \
+        $$PWD/src/ios/facebookqmlutils.h
+
+    OBJECTIVE_SOURCES += \
+        $$PWD/src/ios/facebookqmlios.mm
 }
 
 android {
+    QT += androidextras
+
     HEADERS += \
-        $$PWD/src/login/android/facebookloginandroid.h \
-        $$PWD/src/share/android/facebookshareandroid.h
+        $$PWD/src/android/facebookqmlutils.h
 
     SOURCES += \
-        $$PWD/src/login/android/facebookloginandroid.cpp \
-        $$PWD/src/share/android/facebookshareandroid.cpp
+        $$PWD/src/android/facebookqmlandroid.cpp
 
-    OTHER_FILES += \
-        $$PWD/src/android/com/lukevear/facebookqml/login/FacebookLoginCallbackManager.java
+    include($$PWD/lib/qmakeAndroidSourcesHelper/functions.pri)
+    QMAKE_EXTRA_TARGETS += $$copyAndroidSources("facebookqml", "src/com/lukevear/facebookqml", $$shell_path($$PWD/src/android/java/FacebookQml.java))
+}
+
+!ios:!android {
+    SOURCES += \
+        $$PWD/src/generic/facebookqmlgeneric.cpp
 }
